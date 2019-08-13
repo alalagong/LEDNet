@@ -1,3 +1,14 @@
+## 更改
+- 增加Cityscapes数据集的脚本文件`datasets/cityscapesScripts`, 和KITTI数据集的脚本文件`datasets/KITTI_devkit_semantics`. 用于处理数据集;
+- 在KITTI数据集脚本中增加将原label图像转为用于本网络训练的19个种类的label图像,见`datasets/KITTI_devkit_semantics/devkit/helpers/createTrainIdImgs.py`;
+- 增加分割的像素集置信度输出;
+- 增加对KITTI数据集的读取类, 二次训练文件`train/main (kitti).py`, 将分割结果保存为yaml文件;
+
+在实际环境分割结果为(左侧是在KITTI训练后的, 中间为原图, 右侧是在CityScapes训练后的):
+
+
+## 原[LEDNet](https://github.com/xiaoyufenfei/LEDNet)代码
+
 ###  [LEDNet: A Lightweight Encoder-Decoder Network for Real-time Semantic Segmentation](https://github.com/xiaoyufenfei/LEDNet)
 
 [![python-image]][python-url]

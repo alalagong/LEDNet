@@ -1,7 +1,7 @@
 import os, cv2
 from devkit.helpers.labels import id2label
 
-# 将KITTI数据集的label图像转为datasets/KITTI_devkit_semantics/devkit/helpers/labels.py里面定义的trainId
+#! 将KITTI数据集的label图像转为datasets/KITTI_devkit_semantics/devkit/helpers/labels.py里面定义的trainId
 
 def is_label_kitti(filename):
     return filename.endswith("_labelIds.png")
