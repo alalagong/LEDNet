@@ -1,3 +1,4 @@
+
 import os
 import random
 import time
@@ -21,7 +22,7 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, CenterCrop, Normalize, Resize, Pad
 from torchvision.transforms import ToTensor, ToPILImage
 
-from utils.dataset import VOC12,cityscapes
+from utils.dataset import VOC12,cityscapes,KITTI
 from utils.transform import Relabel, ToLabel, Colorize
 from utils.visualize import Dashboard
 from utils.loss import CrossEntropyLoss2d
@@ -31,6 +32,7 @@ from utils.iouEval import iouEval, getColorEntry
 
 from shutil import copyfile
 
+#* *************************train again on KITTI after trained in cityscapes***************************
 NUM_CHANNELS = 3
 NUM_CLASSES = 20 #pascal=22, cityscapes=20
 
@@ -131,8 +133,8 @@ def train(args, model, enc=False):
 
     co_transform = MyCoTransform(enc, augment=True, height=args.height)#512)
     co_transform_val = MyCoTransform(enc, augment=False, height=args.height)#512)
-    dataset_train = cityscapes(args.datadir, co_transform, 'train')
-    dataset_val = cityscapes(args.datadir, co_transform_val, 'val')
+    dataset_train = KITTI(args.datadir, co_transform, 'train')
+    dataset_val = KITTI(args.datadir, co_transform_val, 'val')
 
     loader = DataLoader(dataset_train, num_workers=args.num_workers, batch_size=args.batch_size, shuffle=True)
     loader_val = DataLoader(dataset_val, num_workers=args.num_workers, batch_size=args.batch_size, shuffle=False)
@@ -430,7 +432,7 @@ def main(args):
                 own_state[name].copy_(param)
             return model
 
-        #print(torch.load(args.state))
+        # print(torch.load(args.state))
         model = load_my_state_dict(model, torch.load(args.state))
 
     """
@@ -487,24 +489,24 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--cuda', action='store_true', default=True)  #NOTE: cpu-only has not been tested so you might have to change code if you deactivate this flag
     parser.add_argument('--model', default= "lednet")
-    parser.add_argument('--state')
+    parser.add_argument('--state', default="../save/logs/model_best.pth.tar") #! 加载Cityscapes上训练完成的
 
     parser.add_argument('--port', type=int, default=8097)
-    parser.add_argument('--datadir', default="/home/common/gongyiqun/Cityscapes/")
+    parser.add_argument('--datadir', default="/home/gongyiqun/images/KITTI/data_semantics")
     parser.add_argument('--height', type=int, default=512)
-    parser.add_argument('--num-epochs', type=int, default=300)
+    parser.add_argument('--num-epochs', type=int, default=300)  
     parser.add_argument('--num-workers', type=int, default=4)
-    parser.add_argument('--batch-size', type=int, default=8)
+    parser.add_argument('--batch-size', type=int, default=5)    #! 需要大于4 
     parser.add_argument('--steps-loss', type=int, default=50)
     parser.add_argument('--steps-plot', type=int, default=50)
     parser.add_argument('--epochs-save', type=int, default=0)    #You can use this value to save model every X epochs
     parser.add_argument('--savedir', default="logs")
-    parser.add_argument('--decoder', )
+    parser.add_argument('--decoder')                            #! 是否从decode开始训练, 是需要在state加载save/logs/model_best_enc.pth.tar
     parser.add_argument('--pretrainedEncoder') #, default=" ")
     parser.add_argument('--visualize', action='store_true')
 
     parser.add_argument('--iouTrain', action='store_true', default=True) #recommended: False (takes more time to train otherwise)
     parser.add_argument('--iouVal', action='store_true', default=True)  
-    parser.add_argument('--resume', action='store_true')    #Use this flag to load last checkpoint for training  
+    parser.add_argument('--resume', action='store_true')    #Use this flag to load last checkpoint for training
 
     main(parser.parse_args())

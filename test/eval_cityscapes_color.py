@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, CenterCrop, Normalize, Resize
 from torchvision.transforms import ToTensor, ToPILImage
 
-from dataset import cityscapes
+from dataset import *
 
 
 
@@ -98,8 +98,13 @@ def main(args):
         print ("Error: datadir could not be loaded")
 
 
-    loader = DataLoader(cityscapes(args.datadir, input_transform_cityscapes, target_transform_cityscapes, subset=args.subset),
-        num_workers=args.num_workers, batch_size=args.batch_size, shuffle=False)
+    loader = DataLoader(KITTI(args.datadir, input_transform_cityscapes, target_transform_cityscapes, subset=args.subset),
+       num_workers=args.num_workers, batch_size=args.batch_size, shuffle=False)
+    # input_transform_cityscapes = Compose([ Resize((512, 1024), Image.BILINEAR), ToTensor(),
+        # Normalize([.485, .456, .406], [.229, .224, .225]),])
+    # with open(image_path_city('/home/gongyiqun', '4.png'), 'rb') as f:
+    #     images = load_image(f).convert('RGB')
+    #     images = input_transform_cityscapes(images)
 
     # For visualizer:
     # must launch in other window "python3.6 -m visdom.server -port 8097"
@@ -107,7 +112,7 @@ def main(args):
     if (args.visualize):
         vis = visdom.Visdom()
 
-    for step, (images, labels, filename, filenameGt) in enumerate(loader):
+    for step, (images, filename) in enumerate(loader):
         if (not args.cpu):
             images = images.cuda()
             #labels = labels.cuda()
@@ -121,10 +126,12 @@ def main(args):
         #label_cityscapes = cityscapes_trainIds2labelIds(label.unsqueeze(0))
         label_color = Colorize()(label.unsqueeze(0))
 
-        filenameSave = "./save_color/" + filename[0].split("leftImg8bit/")[1]   
+        filenameSave = "./save_color(KITTI)/" + filename[0].split("leftImg8bit/")[1]
+        # filenameSave = "./save_color/"+"Others"
         os.makedirs(os.path.dirname(filenameSave), exist_ok=True)
         #image_transform(label.byte()).save(filenameSave)      
-        label_save = ToPILImage()(label_color)           
+        label_save = ToPILImage()(label_color)
+        label_save = label_save.resize((1242, 375), Image.BILINEAR)  # For KITTI only
         label_save.save(filenameSave) 
 
         if (args.visualize):
@@ -139,12 +146,12 @@ if __name__ == '__main__':
     parser.add_argument('--state')
 
 
-    parser.add_argument('--loadDir',default="../save/logs/")
+    parser.add_argument('--loadDir',default="../save/logs(KITTI)/")
     parser.add_argument('--loadWeights', default="model_best.pth")
     parser.add_argument('--loadModel', default="lednet.py")
     parser.add_argument('--subset', default="val")  #can be val, test, train, demoSequence
 
-    parser.add_argument('--datadir', default=os.getenv("HOME") + "/datasets/cityscapes/")
+    parser.add_argument('--datadir', default="/home/gongyiqun/images/KITTI/data_semantics/")
     parser.add_argument('--num-workers', type=int, default=4)
     parser.add_argument('--batch-size', type=int, default=1)
     parser.add_argument('--cpu', action='store_true')

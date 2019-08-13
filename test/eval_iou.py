@@ -15,7 +15,7 @@ from torchvision.transforms import ToTensor, ToPILImage
 
 from dataset import cityscapes
 
-from lednet.py import Net
+from lednet import Net
 
 
 from transform import Relabel, ToLabel, Colorize
@@ -135,11 +135,11 @@ if __name__ == '__main__':
 
     parser.add_argument('--state')
 
-    parser.add_argument('--loadDir',default="../trained_models/")
-    parser.add_argument('--loadWeights', default="lednet_trained.pth")
+    parser.add_argument('--loadDir',default="../save/logs/")
+    parser.add_argument('--loadWeights', default="model_best.pth")
     parser.add_argument('--loadModel', default="lednet.py")
     parser.add_argument('--subset', default="val")  #can be val or train (must have labels)
-    parser.add_argument('--datadir', default=os.getenv("HOME") + "/datasets/cityscapes/")
+    parser.add_argument('--datadir', default="/home/common/gongyiqun/Cityscapes")
     parser.add_argument('--num-workers', type=int, default=4)
     parser.add_argument('--batch-size', type=int, default=1)
     parser.add_argument('--cpu', action='store_true')
